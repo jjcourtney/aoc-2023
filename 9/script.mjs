@@ -7,7 +7,8 @@ import { data } from "./data.mjs";
 // ];
 
 const iterateOverSequence = (currentSequence) => {
-  const lastNumber = [currentSequence[currentSequence.length - 1]];
+  const lastNumbers = [currentSequence[currentSequence.length - 1]];
+  const firstNumbers = [currentSequence[0]];
 
   const arrayRecursive = (arrayLayer) => {
     const allZero = arrayLayer.every((element) => element === 0);
@@ -23,7 +24,9 @@ const iterateOverSequence = (currentSequence) => {
         return;
       });
 
-      lastNumber.unshift(nextLayer[nextLayer.length - 1]);
+      lastNumbers.unshift(nextLayer[nextLayer.length - 1]);
+      firstNumbers.unshift(nextLayer[0]);
+      console.log("firstNumbers", firstNumbers);
 
       return arrayRecursive(nextLayer);
     }
@@ -31,30 +34,38 @@ const iterateOverSequence = (currentSequence) => {
 
   arrayRecursive(currentSequence);
 
-  return lastNumber;
+  return { firstNumbers, lastNumbers };
 };
 
 const allHistories = [];
 const getHistory = (array) => {
-  const lastNumbers = iterateOverSequence(array);
-  if (!lastNumbers) return;
+  const numbers = iterateOverSequence(array);
+  if (!numbers) return;
 
-  const total = lastNumbers.reduce((acc, cur) => {
+  let firstTotal = 0;
+  for (let index = 0; index < numbers.firstNumbers.length; index++) {
+    var nextHistory = numbers.firstNumbers[index] - firstTotal;
+    firstTotal = nextHistory;
+  }
+
+  const lastTotal = numbers.lastNumbers.reduce((acc, cur) => {
     return acc + cur;
   }, 0);
 
-  allHistories.push(total);
+  allHistories.push({ firstTotal, lastTotal });
 };
 
 data.forEach((array) => {
   getHistory(array);
 });
 
-const test = allHistories.filter((element) => {
-  return element < 0;
-});
 const part1 = allHistories.reduce((acc, cur) => {
-  return acc + cur;
+  return acc + cur.lastTotal;
 }, 0);
 
-console.log("part1", part1); // 1995001648
+const part2 = allHistories.reduce((acc, cur) => {
+  return acc + parseInt(cur.firstTotal);
+}, 0);
+
+console.log("Part1: ", part1); // 1995001648
+console.log("Part2: ", part2); // 988
