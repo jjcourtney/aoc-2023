@@ -26,7 +26,6 @@ const iterateOverSequence = (currentSequence) => {
 
       lastNumbers.unshift(nextLayer[nextLayer.length - 1]);
       firstNumbers.unshift(nextLayer[0]);
-      console.log("firstNumbers", firstNumbers);
 
       return arrayRecursive(nextLayer);
     }
