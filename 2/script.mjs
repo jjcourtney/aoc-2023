@@ -51,8 +51,8 @@ const gameCheck = Object.keys(data).map((game) => {
   return minimum;
 });
 
-const total = gameCheck.reduce((acc, curr) => {
-  const power = curr.red * curr.blue * curr.green;
+const total = gameCheck.reduce((acc, { red, green, blue }) => {
+  const power = red * green * blue;
   return acc + power;
 }, 0);
 
