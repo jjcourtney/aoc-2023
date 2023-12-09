@@ -20,8 +20,6 @@ const iterateOverSequence = (currentSequence) => {
           const nextElement = array[index + 1] - element;
           nextLayer.push(nextElement);
         }
-        if (nextLayer.length === array.length - 1) {
-        }
         return;
       });
 
