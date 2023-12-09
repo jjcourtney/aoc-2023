@@ -31,8 +31,22 @@ const goToNextLocation = () => {
   currentInstuctions = data.instuctions[currentInstuctionsIndex];
 };
 
-while (nextLocation != "ZZZ") {
-  goToNextLocation();
-  counter++;
-}
-console.log(counter);
+const part1 = () => {
+  while (nextLocation != "ZZZ") {
+    goToNextLocation();
+    counter++;
+  }
+  console.log("Part 1: ", counter);
+};
+part1();
+
+const part2 = () => {
+  const startLocations = Object.keys(data.locations).filter((key) => {
+    return key[2] === "A";
+  });
+  const endLocations = Object.keys(data.locations).filter((key) => {
+    return key[2] === "Z";
+  });
+  console.log("startLocations", startLocations, "endLocations", endLocations);
+};
+part2();
