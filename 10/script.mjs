@@ -108,13 +108,6 @@ const mappingSymbols = {
   },
 };
 
-// data.forEach((item, yCoord) => {
-//   item.split("").forEach((letter, xCoord) => {
-//     if (letter === "S") {
-//       startingPoint = { x: xCoord, y: yCoord - 1, direction: "north" };
-//     }
-//   });
-// });
 
 let nextPos = { x: 29, y: 20, direction: "north" };
 
