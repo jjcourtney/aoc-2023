@@ -1,24 +1,27 @@
 import { data } from "./data.mjs";
 
-// | is a vertical pipe connecting north and south.
-// - is a horizontal pipe connecting east and west.
-// L is a 90-degree bend connecting north and east.
-// J is a 90-degree bend connecting north and west.
-// 7 is a 90-degree bend connecting south and west.
-// F is a 90-degree bend connecting south and east.
-// . is ground; there is no pipe in this tile.
-// S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
+// moving north is -1 in y
+// moving south is +1 in y
+// moving east is +1 in x
+// moving west is -1 in x
+
+const steppedOn = [];
+
+let continueLoop = true;
 
 const mappingSymbols = {
   "|": {
     name: "vertical",
     isNext: (direction, x, y) => {
       if (direction === "north") {
-        return { x: x, y: y + 1, direction: "north" };
-      } else if (direction === "south") {
-        return { x: x, y: y - 1, direction: "south" };
+        return { x: x, y: y - 1, direction: "north" };
       }
-      throw new Error("Invalid direction for vertical pipe |");
+      if (direction === "south") {
+        return { x: x, y: y + 1, direction: "south" };
+      }
+      throw new Error(
+        `${direction} is an invalid direction for vertical pipe | at ${x}, ${y}`
+      );
     },
   },
 
@@ -26,76 +29,120 @@ const mappingSymbols = {
     name: "horizontal",
     isNext: (direction, x, y) => {
       if (direction === "east") {
-        return { x: x + 1, y: y, direction: "east" };
-      } else if (direction === "west") {
-        return { x: x - 1, y: y, direction: "west" };
+        return { x: x + 1, y, direction: "east" };
       }
-      throw new Error("Invalid direction for horizontal pipe -");
+      if (direction === "west") {
+        return { x: x - 1, y, direction: "west" };
+      }
+      throw new Error(
+        `${direction} is an invalid direction for horizontal pipe - at ${x}, ${y}`
+      );
     },
   },
   L: {
     name: "north-east",
     isNext: (direction, x, y) => {
       if (direction === "south") {
-        return { x: x + 1, y: y - 1, direction: "east" };
-      } else if (direction === "west") {
-        return { x: x - 1, y: y + 1, direction: "north" };
+        return { x: x + 1, y, direction: "east" };
       }
-      throw new Error("Invalid direction for north-east pipe L");
+      if (direction === "west") {
+        return { x, y: y - 1, direction: "north" };
+      }
+      throw new Error(
+        `${direction} is an invalid direction for north-east pipe L at ${x}, ${y}`
+      );
     },
   },
   J: {
     name: "north-west",
     isNext: (direction, x, y) => {
       if (direction === "south") {
-        return { x: x - 1, y: y - 1, direction: "west" };
-      } else if (direction === "east") {
-        return { x: x + 1, y: y + 1, direction: "north" };
+        return { x: x - 1, y, direction: "west" };
       }
-      throw new Error("Invalid direction for north-west pipe J");
+      if (direction === "east") {
+        return { x, y: y - 1, direction: "north" };
+      }
+      throw new Error(
+        `${direction} is an invalid direction for north-west pipe J at ${x}, ${y}`
+      );
     },
   },
   7: {
     name: "south-west",
     isNext: (direction, x, y) => {
       if (direction === "north") {
-        return { x: x - 1, y: y + 1, direction: "west" };
-      } else if (direction === "east") {
-        return { x: x + 1, y: y - 1, direction: "south" };
+        return { x: x - 1, y: y, direction: "west" };
       }
-      throw new Error("Invalid direction for south-west pipe 7");
+      if (direction === "east") {
+        return { x, y: y + 1, direction: "south" };
+      }
+      throw new Error(
+        `${direction} is an invalid direction for south-west pipe 7 at ${x}, ${y}`
+      );
     },
   },
   F: {
     name: "south-east",
     isNext: (direction, x, y) => {
       if (direction === "north") {
-        return { x: x + 1, y: y + 1, direction: "east" };
+        return { x: x + 1, y, direction: "east" };
       } else if (direction === "west") {
-        return { x: x - 1, y: y - 1, direction: "south" };
+        return { x, y: y + 1, direction: "south" };
       }
-      throw new Error("Invalid direction for south-east pipe F");
+      throw new Error(
+        `${direction} is an invalid direction for south-east pipe F at ${x}, ${y}`
+      );
     },
   },
   ".": {
     name: "ground",
     isNext: (direction, x, y) => {
-      throw new Error("Invalid direction for ground pipe .");
+      throw new Error("Invalid direction for ground .");
     },
   },
   S: {
     name: "starting",
     isNext: (direction, x, y) => {
-      return { isEnd: true };
+      continueLoop = false;
     },
   },
 };
 
-let startingPoint;
-data.forEach((item, xCoord) => {
-  item.split("").forEach((letter, yCoord) => {
-    if (letter === "S") {
-      startingPoint = { x: xCoord, y: yCoord };
+// data.forEach((item, yCoord) => {
+//   item.split("").forEach((letter, xCoord) => {
+//     if (letter === "S") {
+//       startingPoint = { x: xCoord, y: yCoord - 1, direction: "north" };
+//     }
+//   });
+// });
+
+let nextPos = { x: 29, y: 20, direction: "north" };
+
+const findNext = (direction, x, y, symbol) => {
+  const pipe = mappingSymbols[symbol];
+  if (!pipe) {
+    throw new Error(`Invalid symbol ${symbol}`);
+  }
+  return pipe.isNext(direction, x, y);
+};
+
+let counter = 0;
+
+while (continueLoop) {
+  const { x, y, direction } = nextPos;
+  const symbol = data[y][x];
+
+  const next = findNext(direction, x, y, symbol);
+
+  nextPos = next;
+  console.log(nextPos, symbol, counter);
+
+  counter++;
+  steppedOn.push(`${x},${y}`);
+}
+
+console.log("Part 1: ", counter / 2);
+
     }
   });
 });
