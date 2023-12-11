@@ -108,7 +108,6 @@ const mappingSymbols = {
   },
 };
 
-
 let nextPos = { x: 29, y: 20, direction: "north" };
 
 const findNext = (direction, x, y, symbol) => {
@@ -128,16 +127,124 @@ while (continueLoop) {
   const next = findNext(direction, x, y, symbol);
 
   nextPos = next;
-  console.log(nextPos, symbol, counter);
+  // console.log(nextPos, symbol, counter);
 
   counter++;
   steppedOn.push(`${x},${y}`);
 }
 
-console.log("Part 1: ", counter / 2);
+// console.log("Part 1: ", counter / 2);
 
-    }
-  });
+const unique = data.map((item, yCoord) => {
+  return item
+    .split("")
+    .map((letter, xCoord) => {
+      if (steppedOn.includes(`${xCoord},${yCoord}`)) {
+        return ".";
+      } else {
+        return letter;
+      }
+    })
+    .join("");
 });
+// console.log(unique);
 
-console.log(startingPoint);
+const uniqueNoSingle = unique.map((item, yCoord) => {
+  return item
+    .split("")
+    .map((letter, xCoord) => {
+      if (
+        xCoord === 0 ||
+        yCoord === 0 ||
+        xCoord === item.length - 1 ||
+        yCoord === unique.length - 1
+      )
+        return letter;
+      const isSingle =
+        unique[yCoord][xCoord + 1] === "." &&
+        unique[yCoord][xCoord - 1] === "." &&
+        unique[yCoord + 1][xCoord] === "." &&
+        unique[yCoord - 1][xCoord] === ".";
+      if (isSingle) {
+        return ".";
+      } else {
+        return letter;
+      }
+    })
+    .join("");
+});
+// // console.log(uniqueNoSingle);
+
+const part2Loop = () => {
+  const posibleStarts = [];
+  const steppedOnPart2 = [];
+  let max = { x: 0, y: 0, counter: 0, direction: "north" };
+  uniqueNoSingle.forEach((item, yCoord) => {
+    continueLoop = true;
+    item.split("").forEach((letter, xCoord) => {
+      if (letter === ".") return;
+      ["north", "south", "east", "west"].forEach((direction) => {
+        counter = 0;
+        // stop coming in from edges of map
+        if (xCoord === 0 && direction === "east") return;
+        if (yCoord === 0 && direction === "south") return;
+        if (xCoord === item.length - 1 && direction === "west") return;
+        if (yCoord === uniqueNoSingle.length - 1 && direction === "north")
+          return;
+
+        try {
+          const starting = `${xCoord},${yCoord}-${direction}`;
+
+          let nextPos = { x: xCoord, y: yCoord, direction };
+
+          while (continueLoop) {
+            steppedOnPart2.push(
+              `${nextPos.x},${nextPos.y}-${nextPos.direction}`
+            );
+            // console.log("posibleStarts", posibleStarts);
+            const { x, y, direction } = nextPos;
+            const symbol = uniqueNoSingle[y][x];
+
+            const next = findNext(direction, x, y, symbol);
+
+            nextPos = next;
+
+            // console.log(nextPos, symbol, counter);
+            if (`${x},${y}-${direction}` === starting && counter > 0) {
+              posibleStarts.push({ x: xCoord, y: yCoord, direction, counter });
+              if (counter > max.counter)
+                max = { x: xCoord, y: yCoord, direction, counter };
+              continueLoop = false;
+            }
+            counter++;
+          }
+        } catch (e) {
+          return;
+        }
+      });
+    });
+  });
+  console.log("max", max);
+  return posibleStarts;
+};
+// console.log("posible", part2Loop());
+part2Loop();
+
+// let part2Counter = 0;
+// part2Loop().forEach((item) => {
+//   nextPos = item;
+//   continueLoop = true;
+//   while (continueLoop) {
+//     const { x, y, direction } = nextPos;
+//     const symbol = uniqueNoSingle[y][x];
+
+//     const next = findNext(direction, x, y, symbol);
+
+//     nextPos = next;
+//     // console.log(nextPos, symbol, counter);
+
+//     if
+
+//     part2Counter++;
+//   }
+// });
